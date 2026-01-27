@@ -27,8 +27,8 @@ router.use("/", bidRoutes);
 // 최종 URL: /api/v1/users
 
 // 경매 추천 리스트 라우트
-// 최종 URL: /api/v1/auction-recommendations
-router.use("/auction-recommendations", auctionRecommendationRoutes);
+// 최종 URL: /api/v1/auction-recommendations-test
+router.use("/auction-recommendations-test", auctionRecommendationRoutes);
 router.use("/users", userRoutes);
 
 export default router;

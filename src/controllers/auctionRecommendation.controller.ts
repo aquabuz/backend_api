@@ -12,14 +12,14 @@ export const getAuctionRecommendations = async (
 
   // 전체 개수 구하기
   const { count, error: countError } = await supabaseAdmin
-    .from("auction_recommendations")
+    .from("auction_recommendations_test")
     .select("*", { count: "exact", head: true });
   if (countError) {
     return res.status(500).json({ success: false, error: countError });
   }
 
   const { data, error } = await supabaseAdmin
-    .from("auction_recommendations")
+    .from("auction_recommendations_test")
     .select("*")
     .range(from, to)
     .order("created_at", { ascending: false });

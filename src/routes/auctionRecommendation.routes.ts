@@ -3,7 +3,7 @@ import { getAuctionRecommendations } from "../controllers/auctionRecommendation.
 
 const router = Router();
 
-// GET /auction-recommendations
+// GET /auction-recommendations-test
 router.get("/", getAuctionRecommendations);
 
 export default router;
