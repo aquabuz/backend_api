@@ -4,12 +4,7 @@
  * Supabase를 통해 데이터베이스와 통신
  */
 import { supabaseAdmin } from "../config/supabase";
-import {
-  Database,
-  Tables,
-  InsertTables,
-  UpdateTables,
-} from "../types/database.types";
+import { Tables, InsertTables, UpdateTables } from "../types/database.types";
 import { ApiError } from "../middlewares";
 
 // 타입 정의 - 데이터베이스 타입에서 추출
@@ -107,6 +102,8 @@ class AuctionService {
       ...auction,
       current_price: auction.starting_price,
       status: auction.status || "draft",
+      starting_price: auction.starting_price,
+      end_time: auction.end_time,
     };
 
     const { data, error } = await supabaseAdmin

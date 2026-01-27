@@ -33,7 +33,7 @@ async function crawlAndInsertAuctionListings() {
     const auction_date = $(tds[6]).text().trim() || null;
 
     // DB insert
-    await supabaseAdmin.from("auction_listings").insert({
+    await supabaseAdmin.from("auction_recommendations_test").insert({
       image_url,
       case_info,
       address,
