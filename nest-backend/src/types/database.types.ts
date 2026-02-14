@@ -48,7 +48,7 @@ export interface Database {
         };
         Relationships: [];
       };
-      auction_recommendations: {
+      auction_recommendations_test: {
         Row: {
           id: string;
           image_url: string | null;
@@ -102,6 +102,8 @@ export interface Database {
 export type Auction = Database['public']['Tables']['auctions']['Row'];
 export type AuctionInsert = Database['public']['Tables']['auctions']['Insert'];
 export type AuctionUpdate = Database['public']['Tables']['auctions']['Update'];
+export type AuctionRecommendationTest =
+  Database['public']['Tables']['auction_recommendations_test']['Row'];
 export interface AuctionFilters {
   status?: Auction['status'];
   sellerId?: string;
