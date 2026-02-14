@@ -66,7 +66,15 @@ export class AuctionController {
     @Param('id') id: string,
     @Body('status') status: string,
   ): Promise<any> {
-    return this.auctionService.updateStatus(id, status);
+    // 타입 강제 변환 및 검증
+    const allowedStatuses = ['draft', 'active', 'ended', 'cancelled'] as const;
+    if (!allowedStatuses.includes(status as any)) {
+      throw new Error('Invalid status value');
+    }
+    return this.auctionService.updateStatus(
+      id,
+      status as import('../types/database.types').Auction['status'],
+    );
   }
 
   @Get('my')
