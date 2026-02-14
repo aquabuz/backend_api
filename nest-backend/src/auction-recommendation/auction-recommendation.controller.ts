@@ -1,4 +1,13 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 
 @Controller('auction-recommendation')
-export class AuctionRecommendationController {}
+export class AuctionRecommendationController {
+  @Get()
+  getHello() {
+    return {
+      success: true,
+      data: [],
+      message: 'auction-recommendation works!',
+    };
+  }
+}

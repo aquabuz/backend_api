@@ -1,10 +1,12 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+
 import { AuctionModule } from './auction/auction.module';
+import { AuctionRecommendationModule } from './auction-recommendation/auction-recommendation.module';
 
 @Module({
-  imports: [AuctionModule],
+  imports: [AuctionModule, AuctionRecommendationModule],
   controllers: [AppController],
   providers: [AppService],
 })
