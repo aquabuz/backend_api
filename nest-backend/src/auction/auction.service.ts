@@ -1,6 +1,15 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { supabaseAdmin } from '../config/supabase';
-import { Auction, AuctionFilters, AuctionInsert, AuctionUpdate } from '../types/database.types';
+import {
+  Auction,
+  AuctionFilters,
+  AuctionInsert,
+  AuctionUpdate,
+} from '../types/database.types';
 
 @Injectable()
 export class AuctionService {
@@ -15,9 +24,14 @@ export class AuctionService {
     if (filters.status) query = query.eq('status', filters.status);
     if (filters.sellerId) query = query.eq('seller_id', filters.sellerId);
     if (filters.search) query = query.ilike('title', `%${filters.search}%`);
-    query = query.order('created_at', { ascending: false }).range(offset, offset + limit - 1);
+    query = query
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1);
     const { data, error, count } = await query;
-    if (error) throw new InternalServerErrorException(`Failed to fetch auctions: ${error.message}`);
+    if (error)
+      throw new InternalServerErrorException(
+        `Failed to fetch auctions: ${error.message}`,
+      );
     return { data: data || [], count: count || 0 };
   }
 
@@ -28,8 +42,11 @@ export class AuctionService {
       .eq('id', id)
       .single();
     if (error) {
-      if (error.code === 'PGRST116') throw new NotFoundException('Auction not found');
-      throw new InternalServerErrorException(`Failed to fetch auction: ${error.message}`);
+      if (error.code === 'PGRST116')
+        throw new NotFoundException('Auction not found');
+      throw new InternalServerErrorException(
+        `Failed to fetch auction: ${error.message}`,
+      );
     }
     return data;
   }
@@ -47,7 +64,10 @@ export class AuctionService {
       .insert(insertData)
       .select()
       .single();
-    if (error) throw new InternalServerErrorException(`Failed to create auction: ${error.message}`);
+    if (error)
+      throw new InternalServerErrorException(
+        `Failed to create auction: ${error.message}`,
+      );
     return data;
   }
 
@@ -63,8 +83,11 @@ export class AuctionService {
       .select()
       .single();
     if (error) {
-      if (error.code === 'PGRST116') throw new NotFoundException('Auction not found');
-      throw new InternalServerErrorException(`Failed to update auction: ${error.message}`);
+      if (error.code === 'PGRST116')
+        throw new NotFoundException('Auction not found');
+      throw new InternalServerErrorException(
+        `Failed to update auction: ${error.message}`,
+      );
     }
     return data;
   }
@@ -74,10 +97,16 @@ export class AuctionService {
       .from(this.table)
       .delete()
       .eq('id', id);
-    if (error) throw new InternalServerErrorException(`Failed to delete auction: ${error.message}`);
+    if (error)
+      throw new InternalServerErrorException(
+        `Failed to delete auction: ${error.message}`,
+      );
   }
 
-  async getActive(offset: number = 0, limit: number = 20): Promise<{ data: Auction[]; count: number }> {
+  async getActive(
+    offset: number = 0,
+    limit: number = 20,
+  ): Promise<{ data: Auction[]; count: number }> {
     return this.getAll({ status: 'active' }, offset, limit);
   }
 
