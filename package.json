@@ -4,11 +4,11 @@
   "description": "Backend API for Flutter App with Supabase",
   "main": "dist/index.js",
   "scripts": {
-    "dev": "tsx watch src/index.ts",
-    "build": "tsc",
-    "start": "node dist/index.js",
-    "lint": "eslint src --ext .ts",
-    "test": "jest"
+    "dev": "cd nest-backend && npm run start:dev",
+    "build": "cd nest-backend && npm run build",
+    "start": "cd nest-backend && npm run start:prod",
+    "lint": "cd nest-backend && npm run lint",
+    "test": "cd nest-backend && npm test"
   },
   "keywords": [
     "api",
