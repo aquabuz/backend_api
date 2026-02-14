@@ -48,6 +48,48 @@ export interface Database {
         };
         Relationships: [];
       };
+      auction_recommendations: {
+        Row: {
+          id: string;
+          image_url: string | null;
+          case_info: string | null;
+          address: string | null;
+          area: string | null;
+          special_rights: string | null;
+          appraisal_price: number | null;
+          min_price: number | null;
+          status: string | null;
+          auction_date: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          image_url?: string | null;
+          case_info?: string | null;
+          address?: string | null;
+          area?: string | null;
+          special_rights?: string | null;
+          appraisal_price?: number | null;
+          min_price?: number | null;
+          status?: string | null;
+          auction_date?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          image_url?: string | null;
+          case_info?: string | null;
+          address?: string | null;
+          area?: string | null;
+          special_rights?: string | null;
+          appraisal_price?: number | null;
+          min_price?: number | null;
+          status?: string | null;
+          auction_date?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
       // ...다른 테이블 정의 필요시 추가
     };
     Views: {};
