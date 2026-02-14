@@ -4,6 +4,7 @@
  */
 import { Request, Response, NextFunction } from "express";
 import { ApiResponse } from "../types";
+import { Injectable, NestMiddleware } from "@nestjs/common";
 
 /**
  * 커스텀 API 에러 클래스
@@ -64,54 +65,42 @@ export class ApiError extends Error {
  * - 모든 에러를 잡아서 일관된 JSON 형식으로 응답
  * - ApiError, Supabase 에러, 일반 에러 구분 처리
  */
-export const errorHandler = (
-  err: Error,
+
+// Express 에러 핸들러 미들웨어 함수로 분리
+export function errorHandler(
+  err: any,
   req: Request,
   res: Response,
-  _next: NextFunction,
-): void => {
-  console.error("Error:", err);
+  next: NextFunction,
+): void {
+  let statusCode = 500;
+  let code = "INTERNAL_ERROR";
+  let message = "Internal server error";
+  let details: unknown = undefined;
 
-  // ApiError 인스턴스인 경우 - 우리가 정의한 에러
   if (err instanceof ApiError) {
-    const response: ApiResponse = {
-      success: false,
-      error: {
-        code: err.code,
-        message: err.message,
-        details: err.details,
-      },
-    };
-    res.status(err.statusCode).json(response);
-    return;
+    statusCode = err.statusCode;
+    code = err.code;
+    message = err.message;
+    details = err.details;
+  } else if (err && err.status) {
+    // Supabase 등 외부 에러 객체 처리
+    statusCode = err.status;
+    code = err.code || code;
+    message = err.message || message;
+    details = err.details || details;
   }
 
-  // Supabase 관련 에러 처리
-  if (
-    err.message?.includes("supabase") ||
-    err.message?.includes("PostgrestError")
-  ) {
-    const response: ApiResponse = {
-      success: false,
-      error: {
-        code: "DATABASE_ERROR",
-        message: "Database operation failed",
-      },
-    };
-    res.status(500).json(response);
-    return;
-  }
-
-  // 기타 예상치 못한 에러
   const response: ApiResponse = {
     success: false,
     error: {
-      code: "INTERNAL_ERROR",
-      message: "An unexpected error occurred",
+      code,
+      message,
+      ...(details ? { details } : {}),
     },
   };
-  res.status(500).json(response);
-};
+  res.status(statusCode).json(response);
+}
 
 /**
  * 404 Not Found 핸들러

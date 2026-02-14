@@ -50,3 +50,5 @@ export interface SortParams {
   field: string; // 정렬 필드
   order: "asc" | "desc"; // 오름차순/내림차순
 }
+
+// NestJS에서도 타입/인터페이스는 그대로 사용 가능. 필요시 DTO/엔티티로 분리 권장

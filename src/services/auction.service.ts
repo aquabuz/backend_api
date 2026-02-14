@@ -6,6 +6,7 @@
 import { supabaseAdmin } from "../config/supabase";
 import { Tables, InsertTables, UpdateTables } from "../types/database.types";
 import { ApiError } from "../middlewares";
+import { Injectable } from "@nestjs/common";
 
 // 타입 정의 - 데이터베이스 타입에서 추출
 export type Auction = Tables<"auctions">; // 경매 조회 타입
@@ -19,7 +20,8 @@ export interface AuctionFilters {
   search?: string; // 제목 검색어
 }
 
-class AuctionService {
+@Injectable()
+export class AuctionService {
   // 테이블명 상수
   private readonly table = "auctions" as const;
 

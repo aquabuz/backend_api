@@ -10,7 +10,7 @@ import {
   updateAuctionSchema,
   auctionQuerySchema,
 } from "../controllers";
-import { authenticate, validate, schemas } from "../middlewares";
+import { validate, schemas } from "../middlewares";
 
 const router = Router();
 
@@ -28,50 +28,44 @@ router.get("/active", validate(auctionQuerySchema, "query"), (req, res) =>
 
 // GET /auctions/:id - 단일 경매 조회
 router.get("/:id", validate(schemas.id, "params"), (req, res) =>
-  auctionController.getById(req, res),
+  auctionController.getById(req.params.id, res),
 );
 
 // ========== 보호된 API (인증 필요) ==========
 
 // GET /auctions/my - 내 경매 목록
-router.get(
-  "/my",
-  authenticate, // 인증 미들웨어
-  validate(auctionQuerySchema, "query"),
-  (req, res) => auctionController.getMyAuctions(req, res),
+
+router.get("/my", validate(auctionQuerySchema, "query"), (req, res) =>
+  auctionController.getMyAuctions(req, req.query, res),
 );
 
 // POST /auctions - 경매 생성
+
 router.post(
   "/",
-  authenticate,
   validate(createAuctionSchema, "body"), // 요청 본문 유효성 검증
-  (req, res) => auctionController.create(req, res),
+  (req, res) => auctionController.create(req.body, req, res),
 );
 
 // PUT /auctions/:id - 경매 수정
+
 router.put(
   "/:id",
-  authenticate,
   validate(schemas.id, "params"), // ID 파라미터 검증
   validate(updateAuctionSchema, "body"),
-  (req, res) => auctionController.update(req, res),
+  (req, res) => auctionController.update(req.params.id, req.body, req, res),
 );
 
 // DELETE /auctions/:id - 경매 삭제
-router.delete(
-  "/:id",
-  authenticate,
-  validate(schemas.id, "params"),
-  (req, res) => auctionController.delete(req, res),
+
+router.delete("/:id", validate(schemas.id, "params"), (req, res) =>
+  auctionController.delete(req.params.id, req, res),
 );
 
 // PATCH /auctions/:id/status - 경매 상태 변경
-router.patch(
-  "/:id/status",
-  authenticate,
-  validate(schemas.id, "params"),
-  (req, res) => auctionController.updateStatus(req, res),
+
+router.patch("/:id/status", validate(schemas.id, "params"), (req, res) =>
+  auctionController.updateStatus(req.params.id, req.body.status, res),
 );
 
 export default router;

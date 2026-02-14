@@ -5,7 +5,7 @@
  */
 import { Router } from "express";
 import { bidController, placeBidSchema, bidQuerySchema } from "../controllers";
-import { authenticate, validate, schemas } from "../middlewares";
+import { validate, schemas } from "../middlewares";
 
 const router = Router();
 
@@ -26,19 +26,17 @@ router.get("/auctions/:auctionId/bids/highest", (req, res) =>
 // ========== 보호된 API ==========
 
 // POST /auctions/:auctionId/bids - 입찰 등록
+
 router.post(
   "/auctions/:auctionId/bids",
-  authenticate, // 인증 필요
   validate(placeBidSchema, "body"), // 입찰금액 검증
   (req, res) => bidController.placeBid(req, res),
 );
 
 // GET /bids/my - 내 입찰 목록 조회
-router.get(
-  "/bids/my",
-  authenticate,
-  validate(bidQuerySchema, "query"),
-  (req, res) => bidController.getMyBids(req, res),
+
+router.get("/bids/my", validate(bidQuerySchema, "query"), (req, res) =>
+  bidController.getMyBids(req, res),
 );
 
 export default router;

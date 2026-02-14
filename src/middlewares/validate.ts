@@ -5,6 +5,7 @@
 import { Request, Response, NextFunction } from "express";
 import { z, ZodSchema } from "zod";
 import { ApiError } from "./errorHandler";
+import { Injectable, NestMiddleware } from "@nestjs/common";
 
 // 검증 대상 타입
 type ValidationTarget = "body" | "query" | "params";
@@ -68,3 +69,11 @@ export const schemas = {
     q: z.string().min(1).optional(),
   }),
 };
+
+@Injectable()
+export class ValidateMiddleware implements NestMiddleware {
+  use(req: Request, res: Response, next: NextFunction) {
+    // 기존 validate 함수 로직 이관 필요
+    next();
+  }
+}

@@ -81,3 +81,5 @@ export const getPaginationParams = (
     offset: (validPage - 1) * validLimit, // DB 조회용 offset 계산
   };
 };
+
+// NestJS에서는 유틸 함수로 그대로 사용 가능. 필요시 Injectable로 변환 가능

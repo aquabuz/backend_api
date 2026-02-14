@@ -2,9 +2,23 @@
  * 경매 컨트롤러
  * HTTP 요청을 받아 서비스를 호출하고 응답을 반환
  */
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Patch,
+  Body,
+  Param,
+  Query,
+  Req,
+  Res,
+  UseGuards,
+} from "@nestjs/common";
 import { Request, Response } from "express";
 import { z } from "zod";
-import { auctionService, AuctionFilters } from "../services";
+import { AuctionService } from "../services/auction.service";
 import { AuthenticatedRequest } from "../types";
 import {
   successResponse,
@@ -42,30 +56,22 @@ export const auctionQuerySchema = z.object({
   search: z.string().optional(), // 검색어
 });
 
-class AuctionController {
-  /**
-   * 경매 목록 조회
-   * GET /auctions
-   */
-  async getAll(req: Request, res: Response): Promise<void> {
-    // 쿼리 파라미터 추출
-    const { page, limit, status, search } = req.query as unknown as z.infer<
-      typeof auctionQuerySchema
-    >;
-    const pagination = getPaginationParams(page, limit);
+@Controller("auction")
+export class AuctionController {
+  constructor(private readonly auctionService: AuctionService) {}
 
-    // 필터 구성
-    const filters: AuctionFilters = {};
+  @Get()
+  async getAll(@Query() query: any, @Res() res: Response): Promise<void> {
+    const { page, limit, status, search } = query;
+    const pagination = getPaginationParams(page, limit);
+    const filters: any = {};
     if (status) filters.status = status;
     if (search) filters.search = search;
-
-    // 서비스 호출
-    const { data, count } = await auctionService.getAll(
+    const { data, count } = await this.auctionService.getAll(
       filters,
       pagination.offset,
       pagination.limit,
     );
-
     paginatedResponse(res, data, pagination, count);
   }
 
@@ -73,17 +79,14 @@ class AuctionController {
    * 활성 경매 목록 조회
    * GET /auctions/active
    */
-  async getActive(req: Request, res: Response): Promise<void> {
-    const { page, limit } = req.query as unknown as z.infer<
-      typeof auctionQuerySchema
-    >;
+  @Get("active")
+  async getActive(@Query() query: any, @Res() res: Response): Promise<void> {
+    const { page, limit } = query;
     const pagination = getPaginationParams(page, limit);
-
-    const { data, count } = await auctionService.getActive(
+    const { data, count } = await this.auctionService.getActive(
       pagination.offset,
       pagination.limit,
     );
-
     paginatedResponse(res, data, pagination, count);
   }
 
@@ -91,9 +94,9 @@ class AuctionController {
    * 단일 경매 조회
    * GET /auctions/:id
    */
-  async getById(req: Request, res: Response): Promise<void> {
-    const { id } = req.params;
-    const auction = await auctionService.getById(id);
+  @Get(":id")
+  async getById(@Param("id") id: string, @Res() res: Response): Promise<void> {
+    const auction = await this.auctionService.getById(id);
     successResponse(res, auction);
   }
 
@@ -102,15 +105,16 @@ class AuctionController {
    * POST /auctions
    * - 인증 필요
    */
-  async create(req: AuthenticatedRequest, res: Response): Promise<void> {
-    const auctionData = req.body as z.infer<typeof createAuctionSchema>;
-
-    // 현재 로그인한 사용자를 판매자로 설정
-    const auction = await auctionService.create({
+  @Post()
+  async create(
+    @Body() auctionData: any,
+    @Req() req: any,
+    @Res() res: Response,
+  ): Promise<void> {
+    const auction = await this.auctionService.create({
       ...auctionData,
-      seller_id: req.user!.id,
+      seller_id: req.user?.id,
     });
-
     createdResponse(res, auction);
   }
 
@@ -119,17 +123,18 @@ class AuctionController {
    * PUT /auctions/:id
    * - 인증 필요, 소유자만 가능
    */
-  async update(req: AuthenticatedRequest, res: Response): Promise<void> {
-    const { id } = req.params;
-    const updates = req.body as z.infer<typeof updateAuctionSchema>;
-
-    // 권한 확인 - 본인 경매만 수정 가능
-    const existing = await auctionService.getById(id);
-    if (existing.seller_id !== req.user!.id) {
+  @Put(":id")
+  async update(
+    @Param("id") id: string,
+    @Body() updates: any,
+    @Req() req: any,
+    @Res() res: Response,
+  ): Promise<void> {
+    const existing = await this.auctionService.getById(id);
+    if (existing.seller_id !== req.user?.id) {
       throw new Error("Unauthorized to update this auction");
     }
-
-    const auction = await auctionService.update(id, updates);
+    const auction = await this.auctionService.update(id, updates);
     successResponse(res, auction);
   }
 
@@ -138,16 +143,17 @@ class AuctionController {
    * DELETE /auctions/:id
    * - 인증 필요, 소유자만 가능
    */
-  async delete(req: AuthenticatedRequest, res: Response): Promise<void> {
-    const { id } = req.params;
-
-    // 권한 확인
-    const existing = await auctionService.getById(id);
-    if (existing.seller_id !== req.user!.id) {
+  @Delete(":id")
+  async delete(
+    @Param("id") id: string,
+    @Req() req: any,
+    @Res() res: Response,
+  ): Promise<void> {
+    const existing = await this.auctionService.getById(id);
+    if (existing.seller_id !== req.user?.id) {
       throw new Error("Unauthorized to delete this auction");
     }
-
-    await auctionService.delete(id);
+    await this.auctionService.delete(id);
     noContentResponse(res);
   }
 
@@ -155,11 +161,19 @@ class AuctionController {
    * 경매 상태 변경
    * PATCH /auctions/:id/status
    */
-  async updateStatus(req: AuthenticatedRequest, res: Response): Promise<void> {
-    const { id } = req.params;
-    const { status } = req.body;
-
-    const auction = await auctionService.updateStatus(id, status);
+  @Patch(":id/status")
+  async updateStatus(
+    @Param("id") id: string,
+    @Body("status") status: string,
+    @Res() res: Response,
+  ): Promise<void> {
+    // 상태 값 검증 및 변환
+    const allowedStatuses = ["draft", "active", "ended", "cancelled"] as const;
+    if (!allowedStatuses.includes(status as any)) {
+      throw new Error("Invalid status value");
+    }
+    const typedStatus = status as (typeof allowedStatuses)[number];
+    const auction = await this.auctionService.updateStatus(id, typedStatus);
     successResponse(res, auction);
   }
 
@@ -168,21 +182,19 @@ class AuctionController {
    * GET /auctions/my
    * - 인증 필요
    */
-  async getMyAuctions(req: AuthenticatedRequest, res: Response): Promise<void> {
-    const { page, limit } = req.query as unknown as z.infer<
-      typeof auctionQuerySchema
-    >;
+  @Get("my")
+  async getMyAuctions(
+    @Req() req: any,
+    @Query() query: any,
+    @Res() res: Response,
+  ): Promise<void> {
+    const { page, limit } = query;
     const pagination = getPaginationParams(page, limit);
-
-    // 본인이 판매자인 경매만 조회
-    const { data, count } = await auctionService.getAll(
-      { sellerId: req.user!.id },
+    const { data, count } = await this.auctionService.getAll(
+      { sellerId: req.user?.id },
       pagination.offset,
       pagination.limit,
     );
-
     paginatedResponse(res, data, pagination, count);
   }
 }
-
-export const auctionController = new AuctionController();

@@ -24,8 +24,11 @@
       "@models/*": ["models/*"],
       "@middlewares/*": ["middlewares/*"],
       "@utils/*": ["utils/*"]
-    }
+    },
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
+  // NestJS에 맞는 tsconfig.json 옵션은 대부분 호환됨. 필요시 "experimentalDecorators": true, "emitDecoratorMetadata": true 추가 권장
 }
