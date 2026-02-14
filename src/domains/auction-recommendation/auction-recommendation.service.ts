@@ -1,5 +1,4 @@
-import { supabase } from "../config/supabase";
-
+import { supabase } from "../../config/supabase";
 import { AuctionRecommendation } from "./interfaces/auction-recommendation.interface";
 import { AuctionRecommendationException } from "./auction-recommendation.exception";
 
