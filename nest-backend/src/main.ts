@@ -1,3 +1,6 @@
+import * as dotenv from 'dotenv';
+import { join } from 'path';
+dotenv.config({ path: join(__dirname, '../../.env') });
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './common/filters/http-exception.filter';
